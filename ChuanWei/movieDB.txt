@@ -1,9 +1,11 @@
 create database ambassador default character set utf8;
+use ambassador;
 
 create table movies
 (
   id int not null auto_increment primary key,
   movieName varchar(20),
+  movieEnName varchar(30),
   movieId varchar(50),
   rating varchar(20),
   runTime varchar(10),
@@ -11,7 +13,22 @@ create table movies
   actor varchar(20),
   genre varchar(10),
   playDate varchar(20),
-  poster text
+  poster text,
+  trailer text
+);
+
+create table comingMovies
+(
+  id int not null auto_increment primary key,
+  movieName varchar(20),
+  movieEnName varchar(30),
+  movieId varchar(50),
+  info text,
+  actor varchar(20),
+  genre varchar(10),
+  playDate varchar(20),
+  poster text,
+  trailer text
 );
 
 create table theaters
@@ -40,5 +57,3 @@ create table movieday
   weekday varchar(20),
   date date
 );
-
-

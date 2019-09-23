@@ -6,7 +6,7 @@ echo '開始時間:'.date("d-m-Y H:i:s"."\n");   //開始時間
 
 $ch = curl_init();
 
-curl_setopt($ch,CURLOPT_URL,"https://www.ambassador.com.tw/home#!");   //抓國賓電影首頁
+curl_setopt($ch,CURLOPT_URL,"https://www.ambassador.com.tw/home");   //抓國賓電影首頁
 curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
 curl_setopt($ch,CURLOPT_HEADER,0);
 
@@ -60,9 +60,6 @@ foreach($entries as $entry){
     }
 }
 
-// var_dump($hrefs);
-
-
 $index = 0; //用在movies、movieDay和movieTime
 $indexDay = 0;  //用在movieDay
 
@@ -72,7 +69,7 @@ $movieDay = [];
 
 error_reporting(E_ALL^E_NOTICE);    //暫時關掉NOTICE
 
-//根據各個電影的網址抓資料
+// 根據各個電影的網址抓資料
 foreach($hrefs as $h){
     $ch = curl_init();
     
@@ -92,6 +89,9 @@ foreach($hrefs as $h){
     $entries = $xpath->query('//*[@id="movie-info"]/div/div/div[3]');   //抓電影介紹
         
     foreach($entries as $entry){
+        $movieInfo = $xpath->query("./h6",$entry);  
+        $movies[$index]["movieEnName"]=$movieInfo[0]->nodeValue;
+
         $movieInfo = $xpath->query("./div/span",$entry);  
         $movies[$index]["rating"]=$movieInfo[0]->nodeValue;
         $movies[$index]["runTime"]=$movieInfo[1]->nodeValue;
@@ -113,6 +113,10 @@ foreach($hrefs as $h){
         $indexDay++;
     }
 
+    $entries = $xpath->query('//*[@id="clip-play-1"]/div/iframe');   //抓電影預告片
+    $entry = $entries[0];
+    $movieTrailers = $xpath->evaluate("./@src",$entry);
+    $movies[$index]["trailer"] =$movieTrailers[0]->nodeValue;
 
 // 在該電影的網頁中抓在不同影城的播映時間
 $entries = $xpath->query('//*[@class="theater-list"]/div/div');   //抓上映影城
@@ -159,7 +163,9 @@ foreach($entries as $entry){
 
     }
     $index++;
+    // if($index>0) break;
 }
+// var_dump($movies);
 
 $index = 0;
 $theaters = [];
@@ -203,6 +209,100 @@ foreach($entries as $entry){
 
 
 
+//抓即將上映的電影
+$ch = curl_init();
+    
+curl_setopt($ch,CURLOPT_URL,"https://www.ambassador.com.tw/home/MovieList?Type=0");   //抓即將上映的網頁
+curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+curl_setopt($ch,CURLOPT_HEADER,0);
+
+$output = curl_exec($ch);
+
+curl_close($ch);
+$doc = new DOMDocument();
+libxml_use_internal_errors(true);
+$doc->loadHTML($output);
+
+$xpath = new DOMXPath($doc);
+//結束起手
+
+
+$hrefs = [];
+$index = 0;
+$comingMovies = [];
+$entries = $xpath->query('//*[@id="tab2"]/div');
+foreach($entries as $entry){
+    $movieHrefs = $xpath->evaluate('./div/a/@href',$entry);
+    foreach($movieHrefs as $mh){
+        array_push($hrefs,"https://www.ambassador.com.tw".$mh->nodeValue);
+        $comingMovies[$index]["movieId"]=
+        substr($mh->nodeValue,strrpos($mh->nodeValue,"MID=")+4,(strrpos($mh->nodeValue,"&")-strrpos($mh->nodeValue,"MID=")-4));
+        $index++;
+    }
+
+
+    $index = 0;
+    $moviePosters = $xpath->evaluate('./div/a/img/@src',$entry);
+    foreach($moviePosters as $mp){
+        $comingMovies[$index]["poster"]=$mp->nodeValue;
+        $index++;
+    }
+
+    $index = 0;
+    $movieTitles = $xpath->query('./div/div/div/h6',$entry);
+    foreach($movieTitles as $mt){
+        $comingMovies[$index]["movieName"]=$mt->nodeValue;
+        $index++;
+    }
+
+    $index = 0;
+    $movieEnTitle = $xpath->query('./div/div/div/p',$entry);
+    foreach($movieEnTitle as $met){
+        $comingMovies[$index]["movieEnName"]=$met->nodeValue;
+        $index++;
+    }
+
+    // var_dump($comingMovies);
+}
+
+$index = 0;
+foreach($hrefs as $h){
+    $ch = curl_init();
+    
+    curl_setopt($ch,CURLOPT_URL,$h);   //抓該電影的資料
+    curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+    curl_setopt($ch,CURLOPT_HEADER,0);
+    
+    $output = curl_exec($ch);
+    
+    curl_close($ch);
+    $doc = new DOMDocument();
+    libxml_use_internal_errors(true);
+    $doc->loadHTML($output);
+    
+    $xpath = new DOMXPath($doc);
+    //起手完畢
+
+    $entries = $xpath->query('//*[@id="movie-info"]/div/div/div[3]');
+    $entry = $entries[0];
+    $infos = $xpath->query('./p',$entry);
+    $comingMovies[$index]["info"]=$infos[0]->nodeValue;
+    $comingMovies[$index]["actor"]=$infos[1]->nodeValue;
+    $comingMovies[$index]["genre"]=$infos[2]->nodeValue;
+    $comingMovies[$index]["playDate"]=$infos[3]->nodeValue;
+    
+    $entries = $xpath->query('//*[@id="clip-play-1"]/div/iframe');
+    $entry = $entries[0];
+    $infos = $xpath->evaluate('./@src',$entry);
+    
+    $comingMovies[$index]["trailer"]=$infos[0]->nodeValue;
+    $index++;
+    // if($index>0) break;
+}
+
+//到這邊停抓即將上映
+
+
 //連接資料庫
 
 $dbLink = @mysqli_connect("localhost", "root", "") or die(mysqli_connect_error());
@@ -215,16 +315,19 @@ mysqli_select_db($dbLink, "ambassador");
 $truncateText = "truncate table movies";    //清空movies表
 mysqli_query($dbLink, $truncateText); 
 
+foreach($movies as $index => $cm){  //避免文字裡有'這個符號
+    $movies[$index]['movieEnName'] = str_replace("'","\'",$movies[$index]['movieEnName']);
+}
 
-$moviesText = "('{$movies[0]['movieName']}' , '{$movies[0]['movieId']}', '{$movies[0]['rating']}', '{$movies[0]['runTime']}' ,'{$movies[0]['info']}'
-         , '{$movies[0]['actor']}' , '{$movies[0]['genre']}', '{$movies[0]['playDate']}', '{$movies[0]['poster']}')";
+$moviesText = "('{$movies[0]['movieName']}', '{$movies[0]['movieEnName']}' , '{$movies[0]['movieId']}', '{$movies[0]['rating']}', '{$movies[0]['runTime']}' ,'{$movies[0]['info']}'
+         , '{$movies[0]['actor']}' , '{$movies[0]['genre']}', '{$movies[0]['playDate']}', '{$movies[0]['poster']}', '{$movies[0]['trailer']}')";
 
 for($i = 1;$i<count($movies);$i++){
-    $moviesText .= ", ('{$movies[$i]['movieName']}' , '{$movies[$i]['movieId']}', '{$movies[$i]['rating']}', '{$movies[$i]['runTime']}', '{$movies[$i]['info']}'
-              , '{$movies[$i]['actor']}' , '{$movies[$i]['genre']}', '{$movies[$i]['playDate']}', '{$movies[$i]['poster']}')";
+    $moviesText .= ", ('{$movies[$i]['movieName']}', '{$movies[$i]['movieEnName']}' , '{$movies[$i]['movieId']}', '{$movies[$i]['rating']}', '{$movies[$i]['runTime']}', '{$movies[$i]['info']}'
+              , '{$movies[$i]['actor']}' , '{$movies[$i]['genre']}', '{$movies[$i]['playDate']}', '{$movies[$i]['poster']}', '{$movies[$i]['trailer']}')";
     
 }
-        $insertMovies = "insert into movies (movieName, movieId, rating, runTime, info, actor, genre, playDate, poster) Values ".$moviesText;
+        $insertMovies = "insert into movies (movieName,movieEnName, movieId, rating, runTime, info, actor, genre, playDate, poster, trailer) Values ".$moviesText;
         mysqli_query($dbLink, $insertMovies);    //存進movies
 
 //存電影時間
@@ -267,10 +370,38 @@ for($i = 1;$i<count($theaters);$i++){
     $theaterText .= ", ('{$theaters[$i]['theaterName']}' , '{$theaters[$i]['address']}', '{$theaters[$i]['phone']}', '{$theaters[$i]['img']}')";
 }
         $insertTheaters = "insert into theaters (theaterName, address, phone, img) Values ".$theaterText;
-        mysqli_query($dbLink, $insertTheaters);    //存進movietime
+        mysqli_query($dbLink, $insertTheaters);    //存進theaters表
+
+// 存即將上映的電影
+$truncateText = "truncate table comingMovies";    //清空comingMovies表
+mysqli_query($dbLink, $truncateText); 
+
+foreach($comingMovies as $index => $cm){
+    $comingMovies[$index]['movieEnName'] = str_replace("'","\'",$comingMovies[$index]['movieEnName']);
+}
 
 
-echo '結束時間:'.date("d-m-Y H:i:s");   //結束時間
+$comingMoviesText = "('{$comingMovies[0]['movieName']}' , '{$comingMovies[0]['movieEnName']}',
+                      '{$comingMovies[0]['movieId']}', '{$comingMovies[0]['info']}',
+                      '{$comingMovies[0]['actor']}', '{$comingMovies[0]['genre']}',
+                      '{$comingMovies[0]['playDate']}', '{$comingMovies[0]['poster']}',
+                      '{$comingMovies[0]['trailer']}')";
+
+for($i = 1;$i<count($comingMovies);$i++){
+    $comingMoviesText .= ", ('{$comingMovies[$i]['movieName']}' , '{$comingMovies[$i]['movieEnName']}',
+                        '{$comingMovies[$i]['movieId']}', '{$comingMovies[$i]['info']}',
+                        '{$comingMovies[$i]['actor']}', '{$comingMovies[$i]['genre']}',
+                        '{$comingMovies[$i]['playDate']}', '{$comingMovies[$i]['poster']}',
+                        '{$comingMovies[$i]['trailer']}')";
+}
+        $insertComingMovies = "insert into comingMovies (movieName, movieEnName, movieId,
+        info, actor, genre, playDate, poster, trailer) Values ".$comingMoviesText;
+
+        // echo($insertComingMovies);
+
+        mysqli_query($dbLink, $insertComingMovies);    //存進comingMovies表
 
 mysqli_close($dbLink);
+echo '結束時間:'.date("d-m-Y H:i:s");   //結束時間
+
 ?>
