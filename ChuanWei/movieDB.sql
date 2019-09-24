@@ -3,38 +3,38 @@ use ambassador;
 
 create table movies
 (
-  id int not null auto_increment primary key,
-  movieName varchar(20),
-  movieEnName varchar(30),
-  movieId varchar(50),
+  ID int not null auto_increment primary key,
+  movie_name varchar(20),
+  movie_enname varchar(30),
+  movie_ID varchar(50),
   rating varchar(20),
-  runTime varchar(10),
+  run_time varchar(10),
   info text,
   actor varchar(20),
   genre varchar(10),
-  playDate varchar(20),
+  play_date varchar(20),
   poster text,
   trailer text
 );
 
 create table comingMovies
 (
-  id int not null auto_increment primary key,
-  movieName varchar(20),
-  movieEnName varchar(30),
-  movieId varchar(50),
+  ID int not null auto_increment primary key,
+  movie_name varchar(20),
+  movie_enname varchar(30),
+  movie_ID varchar(50),
   info text,
   actor varchar(20),
   genre varchar(10),
-  playDate varchar(20),
+  play_date varchar(20),
   poster text,
   trailer text
 );
 
 create table theaters
 (
- id int not null auto_increment primary key,
- theaterName varchar(20),
+ ID int not null auto_increment primary key,
+ theater_name varchar(20),
  address varchar(30),
  phone varchar(20),
  img text
@@ -43,17 +43,17 @@ create table theaters
 create table movietime
 (
   id int not null auto_increment primary key,
-  movieId varchar(50),
-  theaterName varchar(20),
-  seatTag varchar(20),
+  movie_ID varchar(50),
+  theater_name varchar(20),
+  seat_tag varchar(20),
   time varchar(10),
-  seatInfo varchar(10)
+  seat_info varchar(10)
 );
 
 create table movieday
 (
-  id int not null auto_increment primary key,
-  movieId varchar(50),
+  ID int not null auto_increment primary key,
+  movie_ID varchar(50),
   weekday varchar(20),
   date date
 );
