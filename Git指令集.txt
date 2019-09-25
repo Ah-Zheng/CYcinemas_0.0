@@ -209,10 +209,9 @@
       => 使用--rebase ，後續 commit 的 ID 有可能會被改變，若新版本尚未 push 上去，則不用擔心其他人版本亂掉的問題。
 
   - 不使用 push ，改採 fetch + merge 的方式，先用 fetch 將最新版本抓下來
-    $ git fetch origin master
-
-  - 將抓下的更新做合併
-    $ git merge origin/master
+    1. $ git fetch origin master
+    2. $ git merge origin/master
+      => 將抓下的更新做合併
 
   - 遠端多人合作使用單分支開發基本流程
     1. 一開始先有人在遠端建好儲存庫，接著團隊中的每個人都 clone 一份完整的儲存庫到自己的電腦，接下來若有人寫了新的版本就 push 上遠端，其他人要這個新版本就 pull 下來自己的電腦，如此循環就完成了版本控制。
