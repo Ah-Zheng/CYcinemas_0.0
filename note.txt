@@ -1,7 +1,15 @@
 # 指導員e-mail
 
-fat0227@gmail.com
+    fat0227@gmail.com
 
+# 主機
+
+    * 前端
+        https://cy-cinemas.tk
+
+    * 後端
+        https://cy-cinemas.ml
+        
 # Git
 
     使用 GitHub 協作開發以及資訊共享
@@ -23,9 +31,10 @@ fat0227@gmail.com
 
 # 資料庫
 
-    會員
-    電影
-    訂單
+    會員 ( members )
+    最新消息 ( news )
+    電影 ( movies )
+    訂單 ( order_details )
 
 # 功能
 
@@ -35,7 +44,7 @@ fat0227@gmail.com
         => 集點
 
     2. 電影資訊 ( 睿霆 )
-        => 爬蟲爬資料 ( 片名、語言、上映日期、時長、播映時刻、電影簡介 )
+        => 爬蟲爬資料 ( 傳偉 )
         => 電影時刻
         => 分級
 
