@@ -5,16 +5,16 @@
 # news
 
     - 取得最新消息所有資料
-        /news/get ( 完成 )
+        [ GET ] /news/get ( 完成 )
 
     - 新增消息
-        /news/add ( 開發中 )
+        [ POST ] /news/add ( 開發中 )
 
     - 刪除消息
-        /news/del ( 完成 )
+        [ POST ] /news/del ( 完成 )
 
     - 更新消息
-        /news/upd ( 開發中 )
+        [ POST ] /news/upd ( 開發中 )
 
 # member
 
