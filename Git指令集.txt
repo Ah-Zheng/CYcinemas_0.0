@@ -203,12 +203,14 @@
   - 當遠端有更新，本地端也要先更新
     $ git pull origin master
       => pull 等於同時執行 fetch + merge
+    or
+    $ git pull
 
   - pull 下來之後查看圖示會發現像是分支的圖示(有耳朵)，不想要的話就使用以下指令
     $ git pull --rebase origin master
       => 使用--rebase ，後續 commit 的 ID 有可能會被改變，若新版本尚未 push 上去，則不用擔心其他人版本亂掉的問題。
 
-  - 不使用 push ，改採 fetch + merge 的方式，先用 fetch 將最新版本抓下來
+  - 不使用 pull ，改採 fetch + merge 的方式，先用 fetch 將最新版本抓下來
     1. $ git fetch origin master
     2. $ git merge origin/master
       => 將抓下的更新做合併

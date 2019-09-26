@@ -8,7 +8,7 @@
         [ GET ] /news/get ( 完成 )
 
     - 新增消息
-        [ POST ] /news/add ( 開發中 )
+        [ POST ] /news/add ( 完成 )
 
     - 刪除消息
         [ POST ] /news/del ( 完成 )
