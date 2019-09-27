@@ -33,14 +33,14 @@ foreach($entries as $entry){
     $movieNameList = $xpath->query("./a",$entry);  
 
     foreach($movieNameList as $movieName){
-        $movies[$index]["movies_name"] = $movieName->nodeValue;
+        $movies[$index]["name"] = $movieName->nodeValue;
        
     }
 
     $dataId = $xpath->evaluate("./@data-id",$entry);   //可以抓data-id，將用做後面抓日期用
 
     foreach($dataId as $id){
-        $movies[$index]["movies_encoded_id"] = $id->nodeValue;
+        $movies[$index]["encoded_id"] = $id->nodeValue;
         $index++;   //!!!!index+1次即可
     }
 }
@@ -55,7 +55,7 @@ foreach($entries as $entry){
     
     $movieImgs = $xpath->evaluate('./a/img/@src',$entry);
     foreach($movieImgs as $mi){
-        $movies[$index]["movies_poster"] =$mi->nodeValue; 
+        $movies[$index]["poster"] =$mi->nodeValue; 
         $index++;
     }
 }
@@ -90,33 +90,33 @@ foreach($hrefs as $h){
         
     foreach($entries as $entry){
         $movieInfo = $xpath->query("./h6",$entry);  
-        $movies[$index]["movies_enname"]=$movieInfo[0]->nodeValue;
+        $movies[$index]["enname"]=$movieInfo[0]->nodeValue;
 
         $movieInfo = $xpath->query("./div/span",$entry);  
-        $movies[$index]["movies_rating"]=$movieInfo[0]->nodeValue;
-        $movies[$index]["movies_run_time"]=$movieInfo[1]->nodeValue;
+        $movies[$index]["rating"]=$movieInfo[0]->nodeValue;
+        $movies[$index]["run_time"]=$movieInfo[1]->nodeValue;
         
         $movieInfo = $xpath->query("./p",$entry);  
-        $movies[$index]["movies_info"]=$movieInfo[0]->nodeValue;
-        $movies[$index]["movies_actor"]=$movieInfo[1]->nodeValue;
-        $movies[$index]["movies_genre"]=$movieInfo[2]->nodeValue;
-        $movies[$index]["movies_play_date"]=$movieInfo[3]->nodeValue;
+        $movies[$index]["info"]=$movieInfo[0]->nodeValue;
+        $movies[$index]["actor"]=$movieInfo[1]->nodeValue;
+        $movies[$index]["genre"]=$movieInfo[2]->nodeValue;
+        $movies[$index]["play_date"]=$movieInfo[3]->nodeValue;
         
     }
     $entries = $xpath->query('//*[@id="search-bar-page"]/div/div/div[1]/ul/li/ul/li');   //抓電影介紹
     foreach($entries as $entry){
         $explodeDay = explode(", ",$entry->nodeValue);
         
-        $movie_day[$indexDay]["movies_encoded_id"] =$movies[$index]["movies_encoded_id"];
-        $movie_day[$indexDay]["movie_day_weekday"] = $explodeDay[0];
-        $movie_day[$indexDay]["movie_day_date"] = $explodeDay[1];
+        $movie_day[$indexDay]["movies_encoded_id"] =$movies[$index]["encoded_id"];
+        $movie_day[$indexDay]["weekday"] = $explodeDay[0];
+        $movie_day[$indexDay]["date"] = $explodeDay[1];
         $indexDay++;
     }
 
     $entries = $xpath->query('//*[@id="clip-play-1"]/div/iframe');   //抓電影預告片
     $entry = $entries[0];
     $movieTrailers = $xpath->evaluate("./@src",$entry);
-    $movies[$index]["movies_trailer"] =$movieTrailers[0]->nodeValue;
+    $movies[$index]["trailer"] =$movieTrailers[0]->nodeValue;
 
 // 在該電影的網頁中抓在不同影城的播映時間
 $entries = $xpath->query('//*[@class="theater-list"]/div/div');   //抓上映影城
@@ -143,10 +143,10 @@ foreach($entries as $entry){
         $movieTheater = $xpath->query("./ul[$i]/li/h6",$entry);
         foreach($movieTheater as $mt){
                 // var_dump($mt->nodeValue);   //該影城提供的時刻
-                $movie_time[$indexArray]["movies_encoded_id"]=$movies[$index]["movies_encoded_id"];
+                $movie_time[$indexArray]["movies_encoded_id"]=$movies[$index]["encoded_id"];
                 $movie_time[$indexArray]["theaters_name"]=$theaterName;
-                $movie_time[$indexArray]["movie_time_seat_tag"]=$seatTag;
-                $movie_time[$indexArray]["movie_time_time"]=$mt->nodeValue;
+                $movie_time[$indexArray]["seat_tag"]=$seatTag;
+                $movie_time[$indexArray]["time"]=$mt->nodeValue;
                 $indexArray++;
             }
         $movieTheater = $xpath->query("./ul[$i]/li/p/span",$entry);
@@ -154,7 +154,7 @@ foreach($entries as $entry){
         foreach($movieTheater as $mt){
                 // var_dump($mt->nodeValue);   //該影城提供的位子
                 if($mt->nodeValue){     //發現有時候會取到空的，所以多個判斷
-                    $movie_time[$indexTimeToSeat]["movie_time_seat_info"]=$mt->nodeValue;
+                    $movie_time[$indexTimeToSeat]["seat_info"]=$mt->nodeValue;
                     $indexTimeToSeat++;
                 }
             }
@@ -190,17 +190,17 @@ foreach($entries as $entry){
     $theaterImg = $xpath->evaluate('./a/div[1]/span/img/@src',$entry);
     foreach($theaterImg as $ti){
         // var_dump($ti);
-        $theaters[$index]["theaters_imgurl"]="https://www.ambassador.com.tw". substr($ti->nodeValue,2);     //抓到的地址是相對位址
+        $theaters[$index]["imgurl"]="https://www.ambassador.com.tw". substr($ti->nodeValue,2);     //抓到的地址是相對位址
     }
     $theaterName = $xpath->query('./a/div[2]/h6',$entry);   //影城名稱
     if($theaterName[0]){    //會抓到幽靈，所以這邊加判斷
-        $theaters[$index]["theaters_name"]=$theaterName[0]->nodeValue;    
+        $theaters[$index]["name"]=$theaterName[0]->nodeValue;    
 
         $theaterAddr = $xpath->query('./a/div[2]/p[1]',$entry);     //影城地址
-        $theaters[$index]["theaters_address"]=$theaterAddr[0]->nodeValue;
+        $theaters[$index]["address"]=$theaterAddr[0]->nodeValue;
         
         $theaterPhone = $xpath->query('./a/div[2]/p[2]',$entry);    //影城電話
-        $theaters[$index]["theaters_phone"]=$theaterPhone[0]->nodeValue;
+        $theaters[$index]["phone"]=$theaterPhone[0]->nodeValue;
     }
     
     $index++;
@@ -235,7 +235,7 @@ foreach($entries as $entry){
     $movieHrefs = $xpath->evaluate('./div/a/@href',$entry);
     foreach($movieHrefs as $mh){
         array_push($hrefs,"https://www.ambassador.com.tw".$mh->nodeValue);
-        $coming_movies[$index]["coming_movies_encoded_id"]=
+        $coming_movies[$index]["encoded_id"]=
         substr($mh->nodeValue,strrpos($mh->nodeValue,"MID=")+4,(strrpos($mh->nodeValue,"&")-strrpos($mh->nodeValue,"MID=")-4));
         $index++;
     }
@@ -244,21 +244,21 @@ foreach($entries as $entry){
     $index = 0;
     $moviePosters = $xpath->evaluate('./div/a/img/@src',$entry);
     foreach($moviePosters as $mp){
-        $coming_movies[$index]["coming_movies_poster"]=$mp->nodeValue;
+        $coming_movies[$index]["poster"]=$mp->nodeValue;
         $index++;
     }
 
     $index = 0;
     $movieTitles = $xpath->query('./div/div/div/h6',$entry);
     foreach($movieTitles as $mt){
-        $coming_movies[$index]["coming_movies_name"]=$mt->nodeValue;
+        $coming_movies[$index]["name"]=$mt->nodeValue;
         $index++;
     }
 
     $index = 0;
     $movieEnTitle = $xpath->query('./div/div/div/p',$entry);
     foreach($movieEnTitle as $met){
-        $coming_movies[$index]["coming_movies_enname"]=$met->nodeValue;
+        $coming_movies[$index]["enname"]=$met->nodeValue;
         $index++;
     }
 
@@ -286,16 +286,16 @@ foreach($hrefs as $h){
     $entries = $xpath->query('//*[@id="movie-info"]/div/div/div[3]');
     $entry = $entries[0];
     $infos = $xpath->query('./p',$entry);
-    $coming_movies[$index]["coming_movies_info"]=$infos[0]->nodeValue;
-    $coming_movies[$index]["coming_movies_actor"]=$infos[1]->nodeValue;
-    $coming_movies[$index]["coming_movies_genre"]=$infos[2]->nodeValue;
-    $coming_movies[$index]["coming_movies_play_date"]=$infos[3]->nodeValue;
+    $coming_movies[$index]["info"]=$infos[0]->nodeValue;
+    $coming_movies[$index]["actor"]=$infos[1]->nodeValue;
+    $coming_movies[$index]["genre"]=$infos[2]->nodeValue;
+    $coming_movies[$index]["play_date"]=$infos[3]->nodeValue;
     
     $entries = $xpath->query('//*[@id="clip-play-1"]/div/iframe');
     $entry = $entries[0];
     $infos = $xpath->evaluate('./@src',$entry);
     
-    $coming_movies[$index]["coming_movies_trailer"]=$infos[0]->nodeValue;
+    $coming_movies[$index]["trailer"]=$infos[0]->nodeValue;
     $index++;
     // if($index>0) break;
 }
@@ -316,18 +316,18 @@ $truncateText = "truncate table movies";    //清空movies表
 mysqli_query($dbLink, $truncateText); 
 
 foreach($movies as $index => $cm){  //避免文字裡有'這個符號
-    $movies[$index]['movies_enname'] = str_replace("'","\'",$movies[$index]['movies_enname']);
+    $movies[$index]['enname'] = str_replace("'","\'",$movies[$index]['enname']);
 }
 
-$moviesText = "('{$movies[0]['movies_name']}', '{$movies[0]['movies_enname']}' , '{$movies[0]['movies_encoded_id']}', '{$movies[0]['movies_rating']}', '{$movies[0]['movies_run_time']}' ,'{$movies[0]['movies_info']}'
-         , '{$movies[0]['movies_actor']}' , '{$movies[0]['movies_genre']}', '{$movies[0]['movies_play_date']}', '{$movies[0]['movies_poster']}', '{$movies[0]['movies_trailer']}')";
+$moviesText = "('{$movies[0]['name']}', '{$movies[0]['enname']}' , '{$movies[0]['encoded_id']}', '{$movies[0]['rating']}', '{$movies[0]['run_time']}' ,'{$movies[0]['info']}'
+         , '{$movies[0]['actor']}' , '{$movies[0]['genre']}', '{$movies[0]['play_date']}', '{$movies[0]['poster']}', '{$movies[0]['trailer']}')";
 
 for($i = 1;$i<count($movies);$i++){
-    $moviesText .= ", ('{$movies[$i]['movies_name']}', '{$movies[$i]['movies_enname']}' , '{$movies[$i]['movies_encoded_id']}', '{$movies[$i]['movies_rating']}', '{$movies[$i]['movies_run_time']}', '{$movies[$i]['movies_info']}'
-              , '{$movies[$i]['movies_actor']}' , '{$movies[$i]['movies_genre']}', '{$movies[$i]['movies_play_date']}', '{$movies[$i]['movies_poster']}', '{$movies[$i]['movies_trailer']}')";
+    $moviesText .= ", ('{$movies[$i]['name']}', '{$movies[$i]['enname']}' , '{$movies[$i]['encoded_id']}', '{$movies[$i]['rating']}', '{$movies[$i]['run_time']}', '{$movies[$i]['info']}'
+              , '{$movies[$i]['actor']}' , '{$movies[$i]['genre']}', '{$movies[$i]['play_date']}', '{$movies[$i]['poster']}', '{$movies[$i]['trailer']}')";
     
 }
-        $insertMovies = "insert into movies (movies_name,movies_enname, movies_encoded_id, movies_rating, movies_run_time, movies_info, movies_actor, movies_genre, movies_play_date, movies_poster, movies_trailer) Values ".$moviesText;
+        $insertMovies = "insert into movies (name,enname, encoded_id, rating, run_time, info, actor, genre, play_date, poster, trailer) Values ".$moviesText;
         mysqli_query($dbLink, $insertMovies);    //存進movies
 
 //存電影時間
@@ -336,14 +336,14 @@ mysqli_query($dbLink, $truncateText);
 
 
 $moviesText = "('{$movie_time[0]['movies_encoded_id']}' , '{$movie_time[0]['theaters_name']}',
-                '{$movie_time[0]['movie_time_seat_tag']}', '{$movie_time[0]['movie_time_time']}' ,'{$movie_time[0]['movie_time_seat_info']}')";
+                '{$movie_time[0]['seat_tag']}', '{$movie_time[0]['time']}' ,'{$movie_time[0]['seat_info']}')";
 
 for($i = 1;$i<count($movie_time);$i++){
     $moviesText .= ", ('{$movie_time[$i]['movies_encoded_id']}' , '{$movie_time[$i]['theaters_name']}',
-                       '{$movie_time[$i]['movie_time_seat_tag']}', '{$movie_time[$i]['movie_time_time']}' ,'{$movie_time[$i]['movie_time_seat_info']}')";
+                       '{$movie_time[$i]['seat_tag']}', '{$movie_time[$i]['time']}' ,'{$movie_time[$i]['seat_info']}')";
     
 }
-        $insertmovie_time = "insert into movie_time (movies_encoded_id, theaters_name, movie_time_seat_tag, movie_time_time, movie_time_seat_info) Values ".$moviesText;
+        $insertmovie_time = "insert into movie_time (movies_encoded_id, theaters_name,seat_tag, time, seat_info) Values ".$moviesText;
         mysqli_query($dbLink, $insertmovie_time);    //存進movie_time
 
 //存電影日期
@@ -351,12 +351,12 @@ $truncateText = "truncate table movie_day";    //清空movies表
 mysqli_query($dbLink, $truncateText); 
 
 
-$moviesText = "('{$movie_day[0]['movies_encoded_id']}' , '{$movie_day[0]['movie_day_weekday']}', '{$movie_day[0]['movie_day_date']}')";
+$moviesText = "('{$movie_day[0]['movies_encoded_id']}' , '{$movie_day[0]['weekday']}', '{$movie_day[0]['date']}')";
 
 for($i = 1;$i<count($movie_day);$i++){
-    $moviesText .= ", ('{$movie_day[$i]['movies_encoded_id']}' , '{$movie_day[$i]['movie_day_weekday']}', '{$movie_day[$i]['movie_day_date']}')";
+    $moviesText .= ", ('{$movie_day[$i]['movies_encoded_id']}' , '{$movie_day[$i]['weekday']}', '{$movie_day[$i]['date']}')";
 }
-        $insertmovie_day = "insert into movie_day (movies_encoded_id, movie_day_weekday, movie_day_date) Values ".$moviesText;
+        $insertmovie_day = "insert into movie_day (movies_encoded_id, weekday, date) Values ".$moviesText;
         mysqli_query($dbLink, $insertmovie_day);    //存進movie_time
 
 //存影城
@@ -364,38 +364,35 @@ $truncateText = "truncate table theaters";    //清空movies表
 mysqli_query($dbLink, $truncateText); 
 
 
-$theaterText = "('{$theaters[0]['theaters_name']}' , '{$theaters[0]['theaters_address']}', '{$theaters[0]['theaters_phone']}', '{$theaters[0]['theaters_imgurl']}')";
+$theaterText = "('{$theaters[0]['name']}' , '{$theaters[0]['address']}', '{$theaters[0]['phone']}', '{$theaters[0]['imgurl']}')";
 
 for($i = 1;$i<count($theaters);$i++){
-    $theaterText .= ", ('{$theaters[$i]['theaters_name']}' , '{$theaters[$i]['theaters_address']}', '{$theaters[$i]['theaters_phone']}', '{$theaters[$i]['theaters_imgurl']}')";
+    $theaterText .= ", ('{$theaters[$i]['name']}' , '{$theaters[$i]['address']}', '{$theaters[$i]['phone']}', '{$theaters[$i]['imgurl']}')";
 }
-        $insertTheaters = "insert into theaters (theaters_name, theaters_address, theaters_phone, theaters_imgurl) Values ".$theaterText;
+        $insertTheaters = "insert into theaters (name, address, phone, imgurl) Values ".$theaterText;
         mysqli_query($dbLink, $insertTheaters);    //存進theaters表
 
 // 存即將上映的電影
-$truncateText = "truncate table coming_movies";    //清空coming_movies表
-mysqli_query($dbLink, $truncateText); 
-
 foreach($coming_movies as $index => $cm){
-    $coming_movies[$index]['coming_movies_enname'] = str_replace("'","\'",$coming_movies[$index]['coming_movies_enname']);
+    $coming_movies[$index]['enname'] = str_replace("'","\'",$coming_movies[$index]['enname']);
 }
 
 
-$coming_moviesText = "('{$coming_movies[0]['coming_movies_name']}' , '{$coming_movies[0]['coming_movies_enname']}',
-                      '{$coming_movies[0]['coming_movies_encoded_id']}', '{$coming_movies[0]['coming_movies_info']}',
-                      '{$coming_movies[0]['coming_movies_actor']}', '{$coming_movies[0]['coming_movies_genre']}',
-                      '{$coming_movies[0]['coming_movies_play_date']}', '{$coming_movies[0]['coming_movies_poster']}',
-                      '{$coming_movies[0]['coming_movies_trailer']}')";
+$coming_moviesText = "('{$coming_movies[0]['name']}' , '{$coming_movies[0]['enname']}',
+                      '{$coming_movies[0]['encoded_id']}', '{$coming_movies[0]['info']}',
+                      '{$coming_movies[0]['actor']}', '{$coming_movies[0]['genre']}',
+                      '{$coming_movies[0]['play_date']}', '{$coming_movies[0]['poster']}',
+                      '{$coming_movies[0]['trailer']}')";
 
 for($i = 1;$i<count($coming_movies);$i++){
-    $coming_moviesText .= ", ('{$coming_movies[$i]['coming_movies_name']}' , '{$coming_movies[$i]['coming_movies_enname']}',
-                        '{$coming_movies[$i]['coming_movies_encoded_id']}', '{$coming_movies[$i]['coming_movies_info']}',
-                        '{$coming_movies[$i]['coming_movies_actor']}', '{$coming_movies[$i]['coming_movies_genre']}',
-                        '{$coming_movies[$i]['coming_movies_play_date']}', '{$coming_movies[$i]['coming_movies_poster']}',
-                        '{$coming_movies[$i]['coming_movies_trailer']}')";
+    $coming_moviesText .= ", ('{$coming_movies[$i]['name']}' , '{$coming_movies[$i]['enname']}',
+                        '{$coming_movies[$i]['encoded_id']}', '{$coming_movies[$i]['info']}',
+                        '{$coming_movies[$i]['actor']}', '{$coming_movies[$i]['genre']}',
+                        '{$coming_movies[$i]['play_date']}', '{$coming_movies[$i]['poster']}',
+                        '{$coming_movies[$i]['trailer']}')";
 }
-        $insertcoming_movies = "insert into coming_movies (coming_movies_name, coming_movies_enname, coming_movies_encoded_id,
-        coming_movies_info, coming_movies_actor, coming_movies_genre, coming_movies_play_date, coming_movies_poster, coming_movies_trailer) Values ".$coming_moviesText;
+        $insertcoming_movies = "insert into movies (name, enname, encoded_id,
+        info, actor, genre, play_date, poster, trailer) Values ".$coming_moviesText;
 
         // echo($insertcoming_movies);
 
