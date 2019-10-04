@@ -29,10 +29,21 @@
     Git (Git Graph、GitHub)
     FTP
 
+# 前端套件
+
+    axios
+    font-awesome
+    vue-toast
+
+# 後端套件
+
+    class.upload.php (上傳圖片)
+
 # 資料庫
 
     會員 ( members )
     最新消息 ( news )
+    餐點 ( food_drinks )
     電影 ( movies )
     訂單 ( order_details )
 

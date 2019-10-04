@@ -7,6 +7,16 @@
     - 取得最新消息所有資料
         [ GET ] /news/get ( 完成 )
 
+        資料欄位 : 
+            id             ( 編號 )
+            title          ( 標題 )
+            content        ( 內容 )
+            img_normal_url ( 大圖路徑 )
+            img_thumbs_url ( 小圖路徑 )
+            location       ( 地點 )
+            start_time     ( 開始時間 )
+            end_time       ( 結束時間 )
+
     - 新增消息
         [ POST ] /news/add ( 完成 )
 
