@@ -305,15 +305,15 @@ foreach($hrefs as $h){
 
 //連接資料庫
 
-$dbLink = @mysqli_connect("localhost", "root", "") or die(mysqli_connect_error());
-mysqli_query($dbLink, "set names utf8");
-mysqli_select_db($dbLink, "cy_cinemas");
+$conn = @mysqli_connect("ah-zheng.com", "ahzheng_cy_cinemas", "cy_cinemas") or die(mysqli_connect_error());
+mysqli_query($conn, "set names utf8");
+mysqli_select_db($conn, "ahzheng_cy_cinemas");
 
 
 // 將電影資料存進資料庫
    
 $truncateText = "truncate table movies";    //清空movies表
-mysqli_query($dbLink, $truncateText); 
+mysqli_query($conn, $truncateText); 
 
 foreach($movies as $index => $cm){  //避免文字裡有'這個符號
     $movies[$index]['enname'] = str_replace("'","\'",$movies[$index]['enname']);
@@ -328,11 +328,11 @@ for($i = 1;$i<count($movies);$i++){
     
 }
         $insertMovies = "insert into movies (name,enname, encoded_id, rating, run_time, info, actor, genre, play_date, poster, trailer) Values ".$moviesText;
-        mysqli_query($dbLink, $insertMovies);    //存進movies
+        mysqli_query($conn, $insertMovies);    //存進movies
 
 //存電影時間
 $truncateText = "truncate table movie_time";    //清空movies表
-mysqli_query($dbLink, $truncateText); 
+mysqli_query($conn, $truncateText); 
 
 
 $moviesText = "('{$movie_time[0]['movies_encoded_id']}' , '{$movie_time[0]['theaters_name']}',
@@ -344,11 +344,11 @@ for($i = 1;$i<count($movie_time);$i++){
     
 }
         $insertmovie_time = "insert into movie_time (movies_encoded_id, theaters_name,seat_tag, time, seat_info) Values ".$moviesText;
-        mysqli_query($dbLink, $insertmovie_time);    //存進movie_time
+        mysqli_query($conn, $insertmovie_time);    //存進movie_time
 
 //存電影日期
 $truncateText = "truncate table movie_day";    //清空movies表
-mysqli_query($dbLink, $truncateText); 
+mysqli_query($conn, $truncateText); 
 
 
 $moviesText = "('{$movie_day[0]['movies_encoded_id']}' , '{$movie_day[0]['weekday']}', '{$movie_day[0]['date']}')";
@@ -357,11 +357,11 @@ for($i = 1;$i<count($movie_day);$i++){
     $moviesText .= ", ('{$movie_day[$i]['movies_encoded_id']}' , '{$movie_day[$i]['weekday']}', '{$movie_day[$i]['date']}')";
 }
         $insertmovie_day = "insert into movie_day (movies_encoded_id, weekday, date) Values ".$moviesText;
-        mysqli_query($dbLink, $insertmovie_day);    //存進movie_time
+        mysqli_query($conn, $insertmovie_day);    //存進movie_time
 
 //存影城
 $truncateText = "truncate table theaters";    //清空movies表
-mysqli_query($dbLink, $truncateText); 
+mysqli_query($conn, $truncateText); 
 
 
 $theaterText = "('{$theaters[0]['name']}' , '{$theaters[0]['address']}', '{$theaters[0]['phone']}', '{$theaters[0]['imgurl']}')";
@@ -370,7 +370,7 @@ for($i = 1;$i<count($theaters);$i++){
     $theaterText .= ", ('{$theaters[$i]['name']}' , '{$theaters[$i]['address']}', '{$theaters[$i]['phone']}', '{$theaters[$i]['imgurl']}')";
 }
         $insertTheaters = "insert into theaters (name, address, phone, imgurl) Values ".$theaterText;
-        mysqli_query($dbLink, $insertTheaters);    //存進theaters表
+        mysqli_query($conn, $insertTheaters);    //存進theaters表
 
 // 存即將上映的電影
 foreach($coming_movies as $index => $cm){
@@ -396,9 +396,9 @@ for($i = 1;$i<count($coming_movies);$i++){
 
         // echo($insertcoming_movies);
 
-        mysqli_query($dbLink, $insertcoming_movies);    //存進coming_movies表
+        mysqli_query($conn, $insertcoming_movies);    //存進coming_movies表
 
-mysqli_close($dbLink);
+mysqli_close($conn);
 echo "\n".'結束時間:'.date("d-m-Y H:i:s");   //結束時間
 
 ?>
