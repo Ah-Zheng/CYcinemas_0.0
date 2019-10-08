@@ -13,6 +13,9 @@
 
   - 設定顯示信箱
     $ git config --global user.email (信箱)
+    
+  - 清除用戶(慎用)
+    $ git credential-manager delete https://github.com
 
   - 加入索引(清單)
     $ git add  (. 全部 | 檔案名)
