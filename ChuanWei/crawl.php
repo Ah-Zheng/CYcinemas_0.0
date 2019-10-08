@@ -1,7 +1,9 @@
 <?php
+require_once "../api/header.php";
+
 ini_set("max_execution_time", "300");
 date_default_timezone_set('Asia/Taipei');
-echo '開始時間:'.date("d-m-Y H:i:s"."\n");   //開始時間
+echo '爬蟲開始時間:'.date("d-m-Y H:i:s");   //開始時間
 
 
 $ch = curl_init();
@@ -304,16 +306,15 @@ foreach($hrefs as $h){
 
 
 //連接資料庫
+require_once './header.php';
+require_once './database.php';
 
-$conn = @mysqli_connect("ah-zheng.com", "ahzheng_cy_cinemas", "cy_cinemas") or die(mysqli_connect_error());
-mysqli_query($conn, "set names utf8");
-mysqli_select_db($conn, "ahzheng_cy_cinemas");
-
+global $conn;
 
 // 將電影資料存進資料庫
    
 $truncateText = "truncate table movies";    //清空movies表
-mysqli_query($conn, $truncateText); 
+$conn->query($truncateText);
 
 foreach($movies as $index => $cm){  //避免文字裡有'這個符號
     $movies[$index]['enname'] = str_replace("'","\'",$movies[$index]['enname']);
@@ -328,11 +329,11 @@ for($i = 1;$i<count($movies);$i++){
     
 }
         $insertMovies = "insert into movies (name,enname, encoded_id, rating, run_time, info, actor, genre, play_date, poster, trailer) Values ".$moviesText;
-        mysqli_query($conn, $insertMovies);    //存進movies
+        $conn->query($insertMovies);    //存進movies
 
 //存電影時間
 $truncateText = "truncate table movie_time";    //清空movies表
-mysqli_query($conn, $truncateText); 
+$conn->query($truncateText);
 
 
 $moviesText = "('{$movie_time[0]['movies_encoded_id']}' , '{$movie_time[0]['theaters_name']}',
@@ -343,12 +344,12 @@ for($i = 1;$i<count($movie_time);$i++){
                        '{$movie_time[$i]['seat_tag']}', '{$movie_time[$i]['time']}' ,'{$movie_time[$i]['seat_info']}')";
     
 }
-        $insertmovie_time = "insert into movie_time (movies_encoded_id, theaters_name,seat_tag, time, seat_info) Values ".$moviesText;
-        mysqli_query($conn, $insertmovie_time);    //存進movie_time
+        $insertMovie_time = "insert into movie_time (movies_encoded_id, theaters_name,seat_tag, time, seat_info) Values ".$moviesText;
+        $conn->query($insertMovie_time);    //存進movie_time
 
 //存電影日期
 $truncateText = "truncate table movie_day";    //清空movies表
-mysqli_query($conn, $truncateText); 
+$conn->query($truncateText); 
 
 
 $moviesText = "('{$movie_day[0]['movies_encoded_id']}' , '{$movie_day[0]['weekday']}', '{$movie_day[0]['date']}')";
@@ -356,12 +357,12 @@ $moviesText = "('{$movie_day[0]['movies_encoded_id']}' , '{$movie_day[0]['weekda
 for($i = 1;$i<count($movie_day);$i++){
     $moviesText .= ", ('{$movie_day[$i]['movies_encoded_id']}' , '{$movie_day[$i]['weekday']}', '{$movie_day[$i]['date']}')";
 }
-        $insertmovie_day = "insert into movie_day (movies_encoded_id, weekday, date) Values ".$moviesText;
-        mysqli_query($conn, $insertmovie_day);    //存進movie_time
+        $insertMovie_day = "insert into movie_day (movies_encoded_id, weekday, date) Values ".$moviesText;
+        $conn->query($insertMovie_day);    //存進movie_day
 
 //存影城
 $truncateText = "truncate table theaters";    //清空movies表
-mysqli_query($conn, $truncateText); 
+$conn->query($truncateText); 
 
 
 $theaterText = "('{$theaters[0]['name']}' , '{$theaters[0]['address']}', '{$theaters[0]['phone']}', '{$theaters[0]['imgurl']}')";
@@ -370,7 +371,7 @@ for($i = 1;$i<count($theaters);$i++){
     $theaterText .= ", ('{$theaters[$i]['name']}' , '{$theaters[$i]['address']}', '{$theaters[$i]['phone']}', '{$theaters[$i]['imgurl']}')";
 }
         $insertTheaters = "insert into theaters (name, address, phone, imgurl) Values ".$theaterText;
-        mysqli_query($conn, $insertTheaters);    //存進theaters表
+        $conn->query($insertTheaters);    //存進theaters表
 
 // 存即將上映的電影
 foreach($coming_movies as $index => $cm){
@@ -391,14 +392,22 @@ for($i = 1;$i<count($coming_movies);$i++){
                         '{$coming_movies[$i]['play_date']}', '{$coming_movies[$i]['poster']}',
                         '{$coming_movies[$i]['trailer']}')";
 }
-        $insertcoming_movies = "insert into movies (name, enname, encoded_id,
+        $insertComing_movies = "insert into movies (name, enname, encoded_id,
         info, actor, genre, play_date, poster, trailer) Values ".$coming_moviesText;
 
         // echo($insertcoming_movies);
 
-        mysqli_query($conn, $insertcoming_movies);    //存進coming_movies表
+        $conn->query($insertComing_movies);    //存進coming_movies表
 
-mysqli_close($conn);
-echo "\n".'結束時間:'.date("d-m-Y H:i:s");   //結束時間
+$insertScreenings = "INSERT INTO screenings (movies_encoded_id,movie_time_time,movie_day_date) SELECT m.encoded_id,mt.time,md.date from movie_time as mt join movie_day as md on mt.movies_encoded_id = md.movies_encoded_id join movies as m on m.encoded_id = mt.movies_encoded_id where mt.theaters_name = '國賓影城@台北長春廣場'";
+$conn->query($insertScreenings);
+
+$insertCourts = "INSERT INTO courts (seats,name) VALUES (72,'1廳'),(144,'2廳')";
+$conn->query($insertCourts);
+
+$randScreenings = "UPDATE screenings SET courts_id = CEILING(RAND()*2)";
+$conn->query($randScreenings);
+
+echo "<br>".'爬蟲結束時間:'.date("d-m-Y H:i:s");   //結束時間
 
 ?>
